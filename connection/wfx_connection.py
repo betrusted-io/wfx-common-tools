@@ -13,6 +13,8 @@ import time
 
 logging.basicConfig(level=logging.INFO)
 
+def time_time_ns():
+    return time.time() * 1e9
 
 class AbstractConnection(object):
     link = None
@@ -162,16 +164,42 @@ class Uart(AbstractConnection):
             if self.trace:
                 print("UART sending  '"  + self.write_color + text.rstrip() + self.reset_color + "'")
             self.last_write = text
-            self.link.write(bytes(str(text).rstrip() + '\n', 'utf-8'))
+
+            sdata = bytes(str(text).rstrip() + '\n', 'utf-8')
+            #print("sdata: {}".format(sdata))
+            
+            #self.link.write(sdata)
+            #self.link.flush()
+            #time.sleep(5/1000)
+
+            bytes_sent = 0
+            delay = 5
+            for dat in sdata:
+                self.link.write(dat.to_bytes(1, byteorder='little'))
+                if (bytes_sent % 2) == 0:
+                   self.link.flush()
+                   print("{}".format(chr(dat)), end='', flush=True)
+                else:
+                   print("{}".format(chr(dat)), end='')
+
+                bytes_sent = bytes_sent + 1
+                
+                #if bytes_sent > 50:
+                #    delay = 5
+                #elif bytes_sent > 32:
+                #    delay = 0
+                #if delay > 0:
+                time.sleep(delay/1000)
+                    
             self.link.flush()
-            time.sleep(5/1000)
+            time.sleep(20/1000)
 
     def read_raw(self):
         res = 'no uart link yet'
         if self.link is not None:
-            start = time.time_ns()
+            start = time_time_ns()
             stop_time = start + self.max_response_ms*1000
-            while time.time_ns() < stop_time:
+            while time_time_ns() < stop_time:
                 res = self.link.read_all().decode("utf-8")
                 if len(res):
                     for read_line in res.split('\n'):
@@ -198,7 +226,7 @@ class Uart(AbstractConnection):
 
     def read(self, wait_ms=0):
         lines = []
-        start = time.time_ns()
+        start = time_time_ns()
         if self.link is not None:
             stop_time = start + (self.max_response_ms*1E6)
             if self.user != '':
@@ -209,7 +237,7 @@ class Uart(AbstractConnection):
                         # return when receiving the prompt
                         if self.prompt in line.rstrip():
                             if self.debug:
-                                print("  DEBUG   " + self.nickname + self.debug_color + " prompt received after " + str((time.time_ns()-start)/1E6) + self.reset_color)
+                                print("  DEBUG   " + self.nickname + self.debug_color + " prompt received after " + str((time_time_ns()-start)/1E6) + self.reset_color)
                                 ...
                             break
                         else:
@@ -218,33 +246,35 @@ class Uart(AbstractConnection):
                     else:
                         # skip empty lines
                         if self.debug:
-                            print("  DEBUG   " + self.nickname + self.debug_color + " empty... after " + str((time.time_ns()-start)/1E6) + self.reset_color)
+                            print("  DEBUG   " + self.nickname + self.debug_color + " empty... after " + str((time_time_ns()-start)/1E6) + self.reset_color)
                             ...
                         ...
-                    now = time.time_ns()
+                    now = time_time_ns()
                     if now > stop_time:
                         print(self.error_color + "read timeout after " + str((now-start)/1E6) + self.write_color + " last_write: " + self.last_write + self.reset_color)
                         break
             else:
                 # RTOS target, exit on timeout
-                while time.time_ns() < stop_time:
+                while time_time_ns() < stop_time:
                     line = self.read_raw_line()
                     if len(line):
                         lines.append(line.rstrip())
-                        stop_time = time.time_ns() + (self.max_response_ms*1E6)
+                        stop_time = time_time_ns() + (self.max_response_ms*1E6)
                         if self.debug:
-                            print("  DEBUG   " + self.nickname + self.debug_color + " line received after " + str((time.time_ns()-start)/1E6) + self.reset_color)
+                            print("  DEBUG   " + self.nickname + self.debug_color + " line received after " + str((time_time_ns()-start)/1E6) + self.reset_color)
                             ...
         if self.debug:
-            print("  DEBUG   " + self.nickname + self.debug_color + " full message received after " + str((time.time_ns()-start)/1E6) + self.reset_color)
+            print("  DEBUG   " + self.nickname + self.debug_color + " full message received after " + str((time_time_ns()-start)/1E6) + self.reset_color)
             ...
         return "\n".join(lines)
 
     def run(self, cmd, wait_ms=0):
+        print("Pi-->{}".format(cmd))
         self.write(cmd)
         res = ''
         time.sleep(wait_ms/1000)
         lines = self.read().split('\n')
+        print("Pi<--{}".format(bytes(lines[0], 'utf-8')))
         if lines[0].rstrip() == cmd.rstrip():
             # Skip echo of 'cmd' (when remote is a direct shell console)
             del lines[0]

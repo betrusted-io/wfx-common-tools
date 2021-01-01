@@ -130,9 +130,9 @@ class WfxTestDut(WfxTestTarget):
             pout_text = self.wfx_get_list({"POUT_VAL"}, mode='quiet')
             points = int(self.wfx_get_list({'NB_OF_POINTS'}).split()[1])
             if points == 0:
-                nb_text = f"{points} points: open_loop"
+                nb_text = "{} points: open_loop".format(points)
             else:
-                nb_text = f"{points} points: closed_loop"
+                nb_text = "{} points: closed_loop".format(points)
             return vdet_text + "\n" + pout_text + "\n" + nb_text
         if vdet_vs_pout is None:
             vdet_list = list_from_text(self.wfx_get_list({"VDET_VAL"}, mode='quiet'))
@@ -174,7 +174,7 @@ class WfxTestDut(WfxTestTarget):
                 if matching is not None:
                     val = str(matching.group(1)).strip()
                     if transform:
-                        val = eval(f"{float(val)}{transform}")
+                        val = eval("{}{}".format(float(val), transform))
                     return str(val)
         agent_res = self.run('wfx_test_agent read_tx_info').strip()
         if match is None:
@@ -186,7 +186,7 @@ class WfxTestDut(WfxTestTarget):
             res_text = ''
             for name in self.tx_info_dict.keys():
                 val = read_tx_info_from_dict(name)
-                res_text += f"{name} {val} "
+                res_text += "{} {} ".format(name, val)
             return res_text
         # generic look for a match in the tx info lines (should rarely be used)
         re_match = re.compile(match)

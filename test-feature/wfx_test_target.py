@@ -72,6 +72,7 @@ class WfxTestTarget(object):
             print("%s: fw_version forced (%s)" % (self.nickname, fw_version))
         else:
             fw_version = self.run('wfx_test_agent read_fw_version')
+            print("got fw_version string: {}".format(fw_version))
             if not re.match("\d+\.\d+\.\d+", fw_version):
                 fw_version = self.test_data.max_fw_version
                 print("%s: No fw_version retrieved from HW, using max_fw_version (%s)" % (self.nickname, fw_version))
@@ -94,7 +95,7 @@ class WfxTestTarget(object):
         else:
             return ''
 
-    def run(self, cmd, wait_ms=0):
+    def run(self, cmd, wait_ms=350):
         if self.link is not None:
             return self.link.run(cmd, wait_ms)
         else:
