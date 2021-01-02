@@ -72,7 +72,7 @@ class Uart(AbstractConnection):
             #  self.max_response_ms may need to be adapted, depending on the RTOS response times
             # If it's too small some messages may be lost
             # If it's too high each 'read' is long
-            self.max_response_ms = 100
+            self.max_response_ms = 500
             timeout = 20/1000
         self.trace = trace
         self.debug = False
@@ -269,12 +269,12 @@ class Uart(AbstractConnection):
         return "\n".join(lines)
 
     def run(self, cmd, wait_ms=0):
-        print("Pi-->{}".format(cmd))
+        #print("Pi-->{}".format(cmd))
         self.write(cmd)
         res = ''
         time.sleep(wait_ms/1000)
         lines = self.read().split('\n')
-        print("Pi<--{}".format(bytes(lines[0], 'utf-8')))
+        #print("Pi<--{}".format(bytes(lines[0], 'utf-8')))
         if lines[0].rstrip() == cmd.rstrip():
             # Skip echo of 'cmd' (when remote is a direct shell console)
             del lines[0]

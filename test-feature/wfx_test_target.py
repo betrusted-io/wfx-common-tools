@@ -126,7 +126,7 @@ class WfxTestTarget(object):
             add_pds_warning("WARNING: No pds data sent! " + compressed_string + "\n")
         else:
             cmd = 'wfx_test_agent write_test_data  \"' + compressed_string + '\"'
-            res = self.run(cmd)
+            res = self.run(cmd, 350 + len(cmd) * 6)
         return res.strip()
 
     def _prepare_and__send_test_data(self, parameters, send_data):

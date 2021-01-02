@@ -30,7 +30,7 @@ print("wait for boot...")
 time.sleep(2)
 
 
-dut = WfxTestDut('Serial', port='/dev/ttyS0', baudrate=115200, bytesize=8, parity='N', stopbits=1)
+dut = WfxTestDut('Serial', port='/dev/ttyS0', baudrate=115200, bytesize=8, parity='N', stopbits=1, timeout=2)
 dut.link.trace = True
 dut.link.debug = False
 dut.trace = True
@@ -43,16 +43,20 @@ dut.trace = True
 #time.sleep(10)
 #dut.tone_stop()
 
+dut.run('wfx_test_agent ec_version')
+dut.run('wfx_test_agent soc_version')
+
 if True:
-   dut.test_ind_period(10000)
+   dut.test_ind_period(1000000)
    dut.tx_framing(4091, 0)
-   dut.channel(1)
    dut.tx_rx_select(1, 1)
-   dut.tx_mode('N_MCS7')
-   dut.tx_power(None) # None == max
+   dut.channel(6)
+   dut.tx_mode('B_1')
+   dut.tx_power(None) # None == max. Go Python!
    dut.tx_start(0)
+#   dut.run('repeat')   # make this the last commpand to stick in this mode forever.
    dut.run('wfx_test_agent commit_pds')
-   time.sleep(30)
+   time.sleep(40)
    dut.tx_stop()
    dut.run('wfx_test_agent commit_pds')
 
