@@ -46,7 +46,7 @@ dut.trace = True
 dut.run('wfx_test_agent ec_version')
 dut.run('wfx_test_agent soc_version')
 
-if True:
+if False:
    dut.test_ind_period(1000000)
    dut.tx_framing(4091, 0)
    dut.tx_rx_select(1, 1)
@@ -60,7 +60,7 @@ if True:
    dut.tx_stop()
    dut.run('wfx_test_agent commit_pds')
 
-if False:
+if True:
    dut.test_ind_period(10000)
    dut.tx_framing(4091, 0)
    dut.channel(1)
