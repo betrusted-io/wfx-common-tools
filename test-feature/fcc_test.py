@@ -23,9 +23,11 @@ def reset_soc():
    time.sleep(0.2)
    GPIO.output(24, GPIO.HIGH)
 
+
 reset_ec()
 reset_soc()
 
+print("*** DID YOU TURN OFF AP SSID SCANNING ON THE EC?? ***")
 print("wait for boot...")
 time.sleep(2)
 
@@ -48,19 +50,33 @@ dut.run('wfx_test_agent soc_version')
 
 if False:
    dut.test_ind_period(1000000)
-   dut.tx_framing(4091, 0)
-   dut.tx_rx_select(1, 1)
-   dut.channel(6)
-   dut.tx_mode('B_1')
-   dut.tx_power(None) # None == max. Go Python!
-   dut.tx_start(0)
-#   dut.run('repeat')   # make this the last commpand to stick in this mode forever.
+   dut.tx_rx_select(1,1)      # Select antenna 1 in TX/RX
+   dut.tx_framing(1500,0)     # Frame size of 1500 bytes with the lowest inter frame space (IFS)
+   dut.regulatory_mode('FCC') # set regulatory mode to ETSI or FCC or JAPAN
+   dut.channel(11)
+   dut.tx_mode('B_1Mbps')
+   dut.tx_backoff('B_1Mbps',0.0)  # Tx power reduction of 0.5dB for B_1Mbps (step: 0.25 dB)
+   dut.tx_start('continuous')
    dut.run('wfx_test_agent commit_pds')
-   time.sleep(40)
+   time.sleep(10)
    dut.tx_stop()
    dut.run('wfx_test_agent commit_pds')
 
 if True:
+   dut.test_ind_period(1000000)
+   dut.tx_framing(4091, 0)
+   dut.tx_rx_select(1, 1)
+   dut.channel(6)
+   dut.tx_mode('G_12Mbps')
+   dut.tx_power(None) # None == max. Go Python!
+   dut.tx_start(0)
+#   dut.run('repeat')   # make this the last commpand to stick in this mode forever.
+   dut.run('wfx_test_agent commit_pds')
+   time.sleep(20)
+   dut.tx_stop()
+   dut.run('wfx_test_agent commit_pds')
+
+if False:
    dut.test_ind_period(10000)
    dut.tx_framing(4091, 0)
    dut.channel(1)
