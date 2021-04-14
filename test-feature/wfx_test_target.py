@@ -127,6 +127,8 @@ class WfxTestTarget(object):
         else:
             cmd = 'wfx_test_agent write_test_data  \"' + compressed_string + '\"'
             res = self.run(cmd, 350 + len(cmd) * 6)
+            if self.log != None:
+                self.log.write('"' + compressed_string + '", ')
         return res.strip()
 
     def _prepare_and__send_test_data(self, parameters, send_data):

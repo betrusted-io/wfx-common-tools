@@ -27,7 +27,7 @@ class WfxTestDut(WfxTestTarget):
         'measure_index': ['Measure index:(.*)'],
     }
 
-    def __init__(self, nickname, **kwargs):
+    def __init__(self, nickname, log=None, **kwargs):
         critical_message = ''
         super().__init__(nickname, **kwargs)
         self.rx_res = None
@@ -43,6 +43,10 @@ class WfxTestDut(WfxTestTarget):
         self.rx_job = None
         self.__rx_clear()
         agent_reply = self.run('wfx_test_agent read_agent_version')
+        if log != None:
+            self.log = open(log, "w")
+        else:
+            self.log = None
         print(self.link.conn + ' agent_reply: ' + str(agent_reply))
         if agent_reply == '' or 'command not found' in agent_reply:
             agent_error = 'No \'wfx_test_agent\' on ' + self.link.conn + \
