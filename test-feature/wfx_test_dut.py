@@ -45,6 +45,7 @@ class WfxTestDut(WfxTestTarget):
         agent_reply = self.run('wfx_test_agent read_agent_version')
         if log != None:
             self.log = open(log, "w")
+            self.log_comma = True
         else:
             self.log = None
         print(self.link.conn + ' agent_reply: ' + str(agent_reply))
